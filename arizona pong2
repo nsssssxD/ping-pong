@@ -1,0 +1,180 @@
+from pygame import *
+from random import randint
+sakuras1=sprite.Group()
+sakuras2=sprite.Group()
+bans=sprite.Group()
+class GameSprite(sprite.Sprite):
+    def __init__(self, image_file, x, y, speed, size_x, size_y):
+        super().__init__()  
+        self.image = transform.scale(image.load(image_file), (size_x, size_y))  
+        self.speed = speed  
+        self.rect = (self.image.get_rect())  
+        self.rect.x = x
+        self.rect.y = y
+    def reset(self):
+        window.blit(self.image, (self.rect.x, self.rect.y))
+class Player(GameSprite): 
+    def update_r(self):
+        keys = key.get_pressed()
+        if keys[K_UP] and self.rect.y > 5:
+            self.rect.y -= self.speed
+        if keys[K_DOWN] and self.rect.y < height - 150:
+            self.rect.y += self.speed
+    def update_l(self):
+        keys = key.get_pressed()
+        if keys[K_w] and self.rect.y > 5:
+            self.rect.y -= self.speed
+        if keys[K_s] and self.rect.y < height - 150:
+            self.rect.y += self.speed
+
+class Barrier(GameSprite):
+  def update(self):
+      self.rect.x+=self.speed
+      if self.rect.x > width:
+            self.rect.y = randint(80, height - 80)
+            self.rect.x = -50
+width = 600
+height = 600
+for i in range(3):
+    sakura1=Barrier('ss.png', 0,randint(0, height -80), randint(1, 4),50,50)
+    sakuras1.add(sakura1)
+for i in range(2):
+    sakura2=Barrier('sakurrrr.png',0,randint(0,height-80),randint(2,4),100,100)
+    sakuras2.add(sakura2)
+ban=Barrier('buk.png',0,randint(0,height-80),randint(1,5),100,100)
+bans.add(ban)
+window = display.set_mode((width, height))
+display.set_caption("Ping Pong")
+background=transform.scale(image.load('arizona.jpg'),(height,width))
+clock = time.Clock()
+FPS = 60
+racket1=Player('prim.png', 10, 200, 4, 50, 100)
+racket2 = Player("prim.png", 550, 200, 4, 50, 100)
+ball1=GameSprite('ball2.png',200,200,3,50,50)
+ball2=GameSprite('ball2.png',100,100,4,50,50)
+ball_x1 = 2
+ball_y1 = 2
+ball_x2 = 3
+ball_y2 = 3
+finish = False  
+game = True  
+mixer.init()
+mixer.music.load('yl.mp3')
+mixer.music.play()
+font.init()
+font1=font.SysFont('Arial',50)
+font2=font.SysFont('Arial',40)
+# lose1=font1.render('PLAYER 1 LOSE!',1,(255,255,255))
+# lose2=font1.render('PLAYER 2 LOSE!',1,(255,255,255))
+count=0
+count2=0
+life=3
+lose=font1.render('YOU LOSE!',True,(79, 17, 25))
+win=font1.render('YOU WIN!',1,(227, 93, 164))
+while game:
+    for e in event.get():
+        if e.type == QUIT:
+            game = False 
+    if finish != True:
+        window.blit(background,(0,0)) 
+        racket1.update_l()  
+        racket2.update_r() 
+        ball1.rect.x += ball_x1
+        ball1.rect.y += ball_y1
+        lifes=font2.render('Жизней:'+str(life),1,(255,255,255))
+        counts=font2.render('Счёт:'+str(count),1,(255,255,255))
+        lifes2=font2.render('Жизни:'+str(life),1,(79, 17, 25))
+        counts2=font2.render('Счёт:'+str(count),1,(79, 17, 25))
+        if (sprite.collide_rect(racket1, ball1) and ball_x1<0) or (sprite.collide_rect(racket2, ball1) and ball_x1>0):
+            ball_x1 *= -1
+            count+=1
+        if ball1.rect.y < 0 or ball1.rect.y > height - 50:
+            ball_y1 *= -1
+        if ball1.rect.x < 0:
+            finish = True  
+            window.blit(background,(0,0)) 
+            window.blit(lose,(200,250))
+            window.blit(counts2,(200,300))
+            window.blit(lifes2,(200,350))
+        if ball1.rect.x > width - 50:
+            finish = True  
+            window.blit(background,(0,0)) 
+            window.blit(lose,(200,250))
+            window.blit(counts2,(200,300))
+            window.blit(lifes2,(200,350))
+        ball2.rect.x += ball_x2
+        ball2.rect.y += ball_y2
+        if (sprite.collide_rect(racket1, ball2)and ball_x2<0) or (sprite.collide_rect(racket2, ball2)and ball_x2>0):
+            ball_x2 *= -1
+            count+=1
+        if ball2.rect.y < 0 or ball2.rect.y > height - 50:
+            ball_y2 *= -1
+            count+=1
+        if ball2.rect.x < 0:
+            finish = True  
+            window.blit(background,(0,0)) 
+            window.blit(lose,(200,250))
+            window.blit(counts2,(200,300))
+            window.blit(lifes2,(200,350))
+        if ball2.rect.x > width - 50:
+            finish = True  
+            window.blit(background,(0,0)) 
+            window.blit(lose,(200,250))
+            window.blit(counts2,(200,300))
+            window.blit(lifes2,(200,350))
+        if sprite.spritecollide(racket2,sakuras1,False):
+            sprite.spritecollide(racket2,sakuras1,True)
+            sakura1=Barrier('sakurrrr.png',0,randint(0,height-80),randint(2,4),50,50)
+            sakuras1.add(sakura1)
+        if sprite.spritecollide(racket2,sakuras2,False):
+            sprite.spritecollide(racket2,sakuras2,True)
+            sakura2=Barrier('sakurrrr.png',0,randint(0,height-80),randint(2,4),100,100)
+            sakuras2.add(sakura2)
+            count2+=1
+        if count2>=10:
+            ball_x1 = 1
+            ball_y1 = 1
+            ball_x2 = 2
+            ball_y2 = 2
+        if ball_x1==0 and ball_y1==0:
+            del ball1
+        if ball_x2==0 and ball_y2==0:
+            del ball2
+        if (ball_x1==0 and ball_y1==0) and (ball_x2==0 and ball_y2==0):
+            window.blit(background,(0,0)) 
+            window.blit(win,(200,250))
+            window.blit(counts2,(200,300))
+            window.blit(lifes2,(200,350))
+        if sprite.spritecollide(racket2,bans,False):
+            sprite.spritecollide(racket2,bans,True)
+            ban=Barrier('buk.png',0,randint(0,height-80),3,100,100)
+            bans.add(ban)
+            life-=1
+
+        window.blit(counts,(0,20))
+        window.blit(lifes,(0,50))
+        racket1.reset()  
+        racket2.reset() 
+        ball1.reset() 
+        ball2.reset()
+        bans.draw(window)
+        bans.update()
+        sakuras1.draw(window)
+        sakuras2.draw(window)
+        sakuras1.update()
+        sakuras2.update()
+        if life==0:
+            finish=True
+            window.blit(background,(0,0)) 
+            window.blit(lose,(200,250))
+            window.blit(counts2,(200,300))
+            window.blit(lifes2,(200,350))
+        if count>=30 and life>0:
+            finish=True
+            window.blit(background,(0,0)) 
+            window.blit(win,(200,250))
+            window.blit(counts2,(200,300))
+            window.blit(lifes2,(200,350))
+    
+    display.update()
+    clock.tick(FPS)
